@@ -12,6 +12,7 @@ Module.register("MMM-CleanSince_", {
     start: function () {
         updated = false;
         periodSince = 0;
+        costSince = 0;
     },
 
     notificationReceived: function (notification, payload, sender) {
@@ -34,27 +35,38 @@ Module.register("MMM-CleanSince_", {
 
     calculateCleanSince: function() {
         var self = this;
-        Log.log("calculatesince called");
         self.sinceDatum = moment(this.config.datum, 'DD.MM.YYYY');
-        Log.log("calculatesince", self.sinceDatum);
         var today = moment();
-        Log.log("calculatesince", today);
         self.periodSince = today.diff(self.sinceDatum, 'days');
-        Log.log("calculatesince", self.periodSince);
+        self.costSince = self.periodSince * this.config.packetPerDay * this.config.pricePerPacket;
         self.updateDom();
     },
     getDom: function () {
         console.log(this.periodSince);
         var mainWrapper = document.createElement("div");
         if (this.periodSince) {
+            var daysWrapper = document.createElement("div");
             var iconElement = document.createElement("span");
             iconElement.className = "fa fa-smoking-ban";
             iconElement.className += " dimmed";
+            iconElement.className += " small";
             var periodElement = document.createElement("span");
-            periodElement.className = "medium";
+            periodElement.className += " small";
             periodElement.innerHTML =  "  " + this.periodSince + " napja!";
-            mainWrapper.appendChild(iconElement);
-            mainWrapper.appendChild(periodElement);
+            daysWrapper.appendChild(iconElement);
+            daysWrapper.appendChild(periodElement);
+            var costWrapper = document.createElement("div");
+            var moneyElement = document.createElement("span");
+            moneyElement.className = "fa fa-money-bill-wave";
+            moneyElement.className += " dimmed";
+            moneyElement.className += " small";
+            var costElement = document.createElement("span");
+            costElement.className += " small";
+            costElement.innerHTML =  "  Megtakarítás: " + this.costSince + " Ft!";
+            costWrapper.appendChild(moneyElement);
+            costWrapper.appendChild(costElement);
+            mainWrapper.appendChild(daysWrapper);
+            mainWrapper.appendChild(costWrapper);
         }
         return mainWrapper;
     },
